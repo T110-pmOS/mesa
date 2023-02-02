@@ -37,7 +37,12 @@
 #define INT_TO_FIXED(x) ((GLfixed) ((x) << 16))
 #define FLOAT_TO_FIXED(x) ((GLfixed) ((x) * 65536.0))
 
-#if defined(_MSC_VER)
+#if defined(fpclassify)
+/* ISO C99 says that fpclassify is a macro.  Assume that any implementation
+ * of fpclassify, whether it's in a C99 compiler or not, will be a macro.
+ */
+#elif defined(_MSC_VER)
+/* Not required on VS2013 and above. */
 /* Oddly, the fpclassify() function doesn't exist in such a form
  * on MSVC.  This is an implementation using slightly different
  * lower-level Windows functions.

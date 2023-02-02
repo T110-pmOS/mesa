@@ -1,3 +1,56 @@
+Compilation
+==================
+
+Example, compile with docker alpine 3.10
+
+    docker container create -i -t --name alpine3.10_arm32 arm32v7/alpine:3.10.0
+    docker start alpine3.10_arm32
+    docker exec -it alpine3.10_arm32 /bin/sh
+
+First, compile https://github.com/T110-pmOS/etna_viv
+
+    apk add make mesa-dev gcc alpine-sdk linux-headers libpng-dev git
+
+    cd /root
+    git clone https://github.com/T110-pmOS/etna_viv
+    cd etna_viv
+    export GCABI="goya"
+    cd attic
+    make -j4
+    cd egl
+    make -j4
+
+Note: You need to compile enta_viv first to get libetnaviv.a
+
+    cd /root
+    git clone https://github.com/T110-pmOS/mesa -b pre_rebase_2014_09 --depth 1
+    apk add automake autoconf libtool bison libpthread-stubs eudev-dev glproto flex     libdrm-dev sysfsutils sysfsutils-dev expat-dev libdrm-dev
+    apk add python2 libffi py2-libxml2 gettext
+    
+    autoreconf -v --install
+    
+    export CFLAGS="-I/root/etna_viv/attic -Wno-error=implicit-function-declaration"
+    export CXXFLAGS="-I/root/etna_viv/attic"
+    export LDFLAGS="-L/root/etna_viv/attic/etnaviv"
+    export ETNA_LIBS="/root/etna_viv/attic/etnaviv/libetnaviv.a"
+    
+    ./configure --enable-gles2 --enable-gles1 --disable-glx --enable-egl --enable-dri \
+        --with-gallium-drivers=swrast,etna --with-egl-platforms=fbdev \
+        --enable-gallium-egl --enable-debug --with-dri-drivers=
+    
+    make -j4
+
+Install on tablet:
+
+Work in progress - `_glapi_tls_Dispatch: symbol not found`
+
+    sudo su
+    cd /root
+    tar -xvf etna_viv_mesa.tar.gz
+    export ETNA_LIBS="/root/etna_viv/attic/etnaviv/libetnaviv.a"
+    ln -s /usr/lib/gcc/armv7-alpine-linux-musleabihf/12.2.1 /usr/lib/gcc/armv7-alpine -linux-musleabihf/8.3.0
+    make install
+
 Etnaviv Mesa fork
 =================
 

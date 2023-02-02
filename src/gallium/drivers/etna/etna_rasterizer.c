@@ -58,7 +58,7 @@ static void *etna_pipe_create_rasterizer_state(struct pipe_context *pipe,
             /* XXX anything else? */
     /* XXX bottom_edge_rule */
     cs->PA_SYSTEM_MODE =
-            (rs->half_pixel_center ? (VIVS_PA_SYSTEM_MODE_UNK0 | VIVS_PA_SYSTEM_MODE_UNK4) : 0);
+            (rs->half_pixel_center ? (VIVS_PA_SYSTEM_MODE_PROVOKING_VERTEX_LAST | VIVS_PA_SYSTEM_MODE_HALF_PIXEL_CENTER) : 0);
     /* rs->scissor overrides the scissor, defaulting to the whole framebuffer, with the scissor state */
     cs->scissor = rs->scissor;
     /* point size per vertex adds a vertex shader output */
