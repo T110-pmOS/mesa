@@ -1,55 +1,73 @@
-Compilation
+Build
 ==================
+For goyawifi pmOS:
 
-Example, compile with docker alpine 3.10
+You can create an Alpine 3.10 CHROOT over the pmOS version of it, to access Python2:
 
-    docker container create -i -t --name alpine3.10_arm32 arm32v7/alpine:3.10.0
-    docker start alpine3.10_arm32
-    docker exec -it alpine3.10_arm32 /bin/sh
+    wget https://dl-cdn.alpinelinux.org/alpine/v3.10/releases/armv7/alpine-minirootfs-3.10.0-armv7.tar.gz
+    mkdir alpine
+    tar zxf alpine-minirootfs-*.tar.gz -C ./alpine
+    cp -L /etc/resolv.conf ./alpine/etc/
+    mkdir -p /alpine/root
+    #Recommend to create a sh file:
+    mount /dev/ ./alpine/dev/ --bind
+    mount -o remount,ro,bind ./alpine/dev
+    export DISPLAY=:0
+    chroot ./alpine
 
-First, compile https://github.com/T110-pmOS/etna_viv
+build https://github.com/T110-pmOS/etna_viv e.g.:
 
     apk add make mesa-dev gcc alpine-sdk linux-headers libpng-dev git
-
     cd /root
     git clone https://github.com/T110-pmOS/etna_viv
     cd etna_viv
     export GCABI="goya"
     cd attic
-    make -j4
+    make -j2
     cd egl
-    make -j4
+    make -j2
+    
+Note: You need to build enta_viv first to get libetnaviv.a
 
-Note: You need to compile enta_viv first to get libetnaviv.a
+Build mesa (this):
 
     cd /root
     git clone https://github.com/T110-pmOS/mesa -b pre_rebase_2014_09 --depth 1
     apk add automake autoconf libtool bison libpthread-stubs eudev-dev glproto flex     libdrm-dev sysfsutils sysfsutils-dev expat-dev libdrm-dev
     apk add python2 libffi py2-libxml2 gettext
-    
+    cd mesa
     autoreconf -v --install
+    apk add nano
+    nano build.sh
     
-    export CFLAGS="-I/root/etna_viv/attic -Wno-error=implicit-function-declaration"
-    export CXXFLAGS="-I/root/etna_viv/attic"
-    export LDFLAGS="-L/root/etna_viv/attic/etnaviv"
+Example of build.sh:
+
+    #!/bin/bash
+    ETNAVIV_BASE="/root/etna_viv"
+    ETNAVIV_LIB="${ETNAVIV_BASE}/attic/etnaviv/" # important!
+    ETNAVIV_INC="${ETNAVIV_BASE}/attic/" # important!
+    
+    export CFLAGS="-I${ETNAVIV_INC} -Wno-error=implicit-function-declaration"
+    export CXXFLAGS="-I${ETNAVIV_INC}"
+    export LDFLAGS="-L${ETNAVIV_LIB}"
+    export LIBDRM_LIBS="-ldrm"
+    
+    #export ETNA_LIBS="-letnaviv" # important!
     export ETNA_LIBS="/root/etna_viv/attic/etnaviv/libetnaviv.a"
+    export LIBTOOL_FOR_BUILD="/usr/bin/libtool" # important
     
     ./configure --enable-gles2 --enable-gles1 --disable-glx --enable-egl --enable-dri \
         --with-gallium-drivers=swrast,etna --with-egl-platforms=fbdev \
         --enable-gallium-egl --enable-debug --with-dri-drivers=
-    
-    make -j4
 
-Install on tablet:
+    make -j2
 
-Work in progress - `_glapi_tls_Dispatch: symbol not found`
+Then use build.sh to build:
 
-    sudo su
-    cd /root
-    tar -xvf etna_viv_mesa.tar.gz
-    export ETNA_LIBS="/root/etna_viv/attic/etnaviv/libetnaviv.a"
-    ln -s /usr/lib/gcc/armv7-alpine-linux-musleabihf/12.2.1 /usr/lib/gcc/armv7-alpine -linux-musleabihf/8.3.0
-    make install
+    sh build.sh
+
+Now you can use [mesatest](https://github.com/laanwj/mesatest_gles) to test etna mesa driver on Goyawifi.
+
 
 Etnaviv Mesa fork
 =================
@@ -62,6 +80,8 @@ There may still be quite a few rendering bugs, specific bug reports are very wel
 This is being maintained as a set of patches on top of the Mesa main repository. Expect frequent rebases
 while in this phase of development.
 
+<details>
+  <summary>Cubox build instructions</summary>
 Build instructions
 -------------------
 
@@ -107,6 +127,7 @@ Mesa cross compiling
 - libexpat and libdrm need to be available on the target (neither is used at the moment, but they are
 dependencies for Mesa).
 In many cases these can be copied from the device, after installing the appropriate development package.
+</details>
 
 Setup
 ===================
