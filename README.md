@@ -2,18 +2,7 @@ Build
 ==================
 For goyawifi pmOS:
 
-You can create an Alpine 3.10 CHROOT over the pmOS version of it, to access Python2:
-
-    wget https://dl-cdn.alpinelinux.org/alpine/v3.10/releases/armv7/alpine-minirootfs-3.10.0-armv7.tar.gz
-    mkdir alpine
-    tar zxf alpine-minirootfs-*.tar.gz -C ./alpine
-    cp -L /etc/resolv.conf ./alpine/etc/
-    mkdir -p /alpine/root
-    #Recommend to create a sh file:
-    mount /dev/ ./alpine/dev/ --bind
-    mount -o remount,ro,bind ./alpine/dev
-    export DISPLAY=:0
-    chroot ./alpine
+Initial Python 3 support. Now you should be able to build inside latest pmOS / Alpine.
 
 build https://github.com/T110-pmOS/etna_viv e.g.:
 
@@ -33,8 +22,8 @@ Build mesa (this):
 
     cd /root
     git clone https://github.com/T110-pmOS/mesa -b pre_rebase_2014_09 --depth 1
-    apk add automake autoconf libtool bison libpthread-stubs eudev-dev glproto flex     libdrm-dev sysfsutils sysfsutils-dev expat-dev libdrm-dev
-    apk add python2 libffi py2-libxml2 gettext
+    apk add automake autoconf libtool bison libpthread-stubs eudev-dev glproto flex libdrm-dev sysfsutils sysfsutils-dev expat-dev libdrm-dev
+    apk add python3 py3-libxml2 gettext
     cd mesa
     autoreconf -v --install
     apk add nano

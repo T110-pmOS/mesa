@@ -30,11 +30,14 @@
 '''
 
 
+from __future__ import absolute_import
 import sys
+from six.moves import map
+from six.moves import range
 
-VOID, UNSIGNED, SIGNED, FIXED, FLOAT = range(5)
+VOID, UNSIGNED, SIGNED, FIXED, FLOAT = list(range(5))
 
-SWIZZLE_X, SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_W, SWIZZLE_0, SWIZZLE_1, SWIZZLE_NONE, = range(7)
+SWIZZLE_X, SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_W, SWIZZLE_0, SWIZZLE_1, SWIZZLE_NONE, = list(range(7))
 
 PLAIN = 'plain'
 
@@ -82,7 +85,7 @@ class Channel:
         if self.type == FLOAT:
             return VERY_LARGE
         if self.type == FIXED:
-            return (1 << (self.size/2)) - 1
+            return (1 << (self.size//2)) - 1
         if self.norm:
             return 1
         if self.type == UNSIGNED:
@@ -96,7 +99,7 @@ class Channel:
         if self.type == FLOAT:
             return -VERY_LARGE
         if self.type == FIXED:
-            return -(1 << (self.size/2))
+            return -(1 << (self.size//2))
         if self.type == UNSIGNED:
             return 0
         if self.norm:
@@ -262,7 +265,7 @@ def parse(filename):
         
         name = fields[0]
         layout = fields[1]
-        block_width, block_height = map(int, fields[2:4])
+        block_width, block_height = list(map(int, fields[2:4]))
 
         swizzles = [_swizzle_parse_map[swizzle] for swizzle in fields[8]]
         colorspace = fields[9]

@@ -37,7 +37,10 @@
 '''
 
 
+from __future__ import absolute_import
+from __future__ import print_function
 from u_format_parse import *
+from six.moves import range
 
 
 def generate_format_type(format):
@@ -45,58 +48,58 @@ def generate_format_type(format):
 
     assert format.layout == PLAIN
     
-    print 'union util_format_%s {' % format.short_name()
+    print('union util_format_%s {' % format.short_name())
     
     if format.block_size() in (8, 16, 32, 64):
-        print '   uint%u_t value;' % (format.block_size(),)
+        print('   uint%u_t value;' % (format.block_size(),))
 
     use_bitfields = False
     for channel in format.channels:
         if channel.size % 8 or not is_pot(channel.size):
             use_bitfields = True
 
-    print '   struct {'
+    print('   struct {')
     for channel in format.channels:
         if use_bitfields:
             if channel.type == VOID:
                 if channel.size:
-                    print '      unsigned %s:%u;' % (channel.name, channel.size)
+                    print('      unsigned %s:%u;' % (channel.name, channel.size))
             elif channel.type == UNSIGNED:
-                print '      unsigned %s:%u;' % (channel.name, channel.size)
+                print('      unsigned %s:%u;' % (channel.name, channel.size))
             elif channel.type in (SIGNED, FIXED):
-                print '      int %s:%u;' % (channel.name, channel.size)
+                print('      int %s:%u;' % (channel.name, channel.size))
             elif channel.type == FLOAT:
                 if channel.size == 64:
-                    print '      double %s;' % (channel.name)
+                    print('      double %s;' % (channel.name))
                 elif channel.size == 32:
-                    print '      float %s;' % (channel.name)
+                    print('      float %s;' % (channel.name))
                 else:
-                    print '      unsigned %s:%u;' % (channel.name, channel.size)
+                    print('      unsigned %s:%u;' % (channel.name, channel.size))
             else:
                 assert 0
         else:
             assert channel.size % 8 == 0 and is_pot(channel.size)
             if channel.type == VOID:
                 if channel.size:
-                    print '      uint%u_t %s;' % (channel.size, channel.name)
+                    print('      uint%u_t %s;' % (channel.size, channel.name))
             elif channel.type == UNSIGNED:
-                print '      uint%u_t %s;' % (channel.size, channel.name)
+                print('      uint%u_t %s;' % (channel.size, channel.name))
             elif channel.type in (SIGNED, FIXED):
-                print '      int%u_t %s;' % (channel.size, channel.name)
+                print('      int%u_t %s;' % (channel.size, channel.name))
             elif channel.type == FLOAT:
                 if channel.size == 64:
-                    print '      double %s;' % (channel.name)
+                    print('      double %s;' % (channel.name))
                 elif channel.size == 32:
-                    print '      float %s;' % (channel.name)
+                    print('      float %s;' % (channel.name))
                 elif channel.size == 16:
-                    print '      uint16_t %s;' % (channel.name)
+                    print('      uint16_t %s;' % (channel.name))
                 else:
                     assert 0
             else:
                 assert 0
-    print '   } chan;'
-    print '};'
-    print
+    print('   } chan;')
+    print('};')
+    print()
 
 
 def is_format_supported(format):
@@ -206,7 +209,7 @@ def value_to_native(type, value):
     if type.type == FLOAT:
         return value
     if type.type == FIXED:
-        return int(value * (1 << (type.size/2)))
+        return int(value * (1 << (type.size//2)))
     if not type.norm:
         return int(value)
     if type.type == UNSIGNED:
@@ -404,15 +407,15 @@ def generate_unpack_kernel(format, dst_channel, dst_native_type):
 
     if format.is_bitmask():
         depth = format.block_size()
-        print '         uint%u_t value = *(const uint%u_t *)src;' % (depth, depth) 
+        print('         uint%u_t value = *(const uint%u_t *)src;' % (depth, depth)) 
 
         # Declare the intermediate variables
         for i in range(format.nr_channels()):
             src_channel = format.channels[i]
             if src_channel.type == UNSIGNED:
-                print '         uint%u_t %s;' % (depth, src_channel.name)
+                print('         uint%u_t %s;' % (depth, src_channel.name))
             elif src_channel.type == SIGNED:
-                print '         int%u_t %s;' % (depth, src_channel.name)
+                print('         int%u_t %s;' % (depth, src_channel.name))
 
         # Compute the intermediate unshifted values 
         for i in range(format.nr_channels()):
@@ -439,7 +442,7 @@ def generate_unpack_kernel(format, dst_channel, dst_native_type):
                 value = None
                 
             if value is not None:
-                print '         %s = %s;' % (src_channel.name, value)
+                print('         %s = %s;' % (src_channel.name, value))
                 
         # Convert, swizzle, and store final values
         for i in range(4):
@@ -463,11 +466,11 @@ def generate_unpack_kernel(format, dst_channel, dst_native_type):
                 value = '0'
             else:
                 assert False
-            print '         dst[%u] = %s; /* %s */' % (i, value, 'rgba'[i])
+            print('         dst[%u] = %s; /* %s */' % (i, value, 'rgba'[i]))
         
     else:
-        print '         union util_format_%s pixel;' % format.short_name()
-        print '         memcpy(&pixel, src, sizeof pixel);'
+        print('         union util_format_%s pixel;' % format.short_name())
+        print('         memcpy(&pixel, src, sizeof pixel);')
     
         for i in range(4):
             swizzle = format.swizzles[i]
@@ -490,7 +493,7 @@ def generate_unpack_kernel(format, dst_channel, dst_native_type):
                 value = '0'
             else:
                 assert False
-            print '         dst[%u] = %s; /* %s */' % (i, value, 'rgba'[i])
+            print('         dst[%u] = %s; /* %s */' % (i, value, 'rgba'[i]))
     
 
 def generate_pack_kernel(format, src_channel, src_native_type):
@@ -506,7 +509,7 @@ def generate_pack_kernel(format, src_channel, src_native_type):
 
     if format.is_bitmask():
         depth = format.block_size()
-        print '         uint%u_t value = 0;' % depth 
+        print('         uint%u_t value = 0;' % depth) 
 
         for i in range(4):
             dst_channel = format.channels[i]
@@ -532,12 +535,12 @@ def generate_pack_kernel(format, src_channel, src_native_type):
                 else:
                     value = None
                 if value is not None:
-                    print '         value |= %s;' % (value)
+                    print('         value |= %s;' % (value))
                 
-        print '         *(uint%u_t *)dst = value;' % depth 
+        print('         *(uint%u_t *)dst = value;' % depth) 
 
     else:
-        print '         union util_format_%s pixel;' % format.short_name()
+        print('         union util_format_%s pixel;' % format.short_name())
     
         for i in range(4):
             dst_channel = format.channels[i]
@@ -553,9 +556,9 @@ def generate_pack_kernel(format, src_channel, src_native_type):
                                     dst_channel, dst_native_type, 
                                     value, 
                                     dst_colorspace = dst_colorspace)
-            print '         pixel.chan.%s = %s;' % (dst_channel.name, value)
+            print('         pixel.chan.%s = %s;' % (dst_channel.name, value))
     
-        print '         memcpy(dst, &pixel, sizeof pixel);'
+        print('         memcpy(dst, &pixel, sizeof pixel);')
     
 
 def generate_format_unpack(format, dst_channel, dst_native_type, dst_suffix):
@@ -563,28 +566,28 @@ def generate_format_unpack(format, dst_channel, dst_native_type, dst_suffix):
 
     name = format.short_name()
 
-    print 'static INLINE void'
-    print 'util_format_%s_unpack_%s(%s *dst_row, unsigned dst_stride, const uint8_t *src_row, unsigned src_stride, unsigned width, unsigned height)' % (name, dst_suffix, dst_native_type)
-    print '{'
+    print('static INLINE void')
+    print('util_format_%s_unpack_%s(%s *dst_row, unsigned dst_stride, const uint8_t *src_row, unsigned src_stride, unsigned width, unsigned height)' % (name, dst_suffix, dst_native_type))
+    print('{')
 
     if is_format_supported(format):
-        print '   unsigned x, y;'
-        print '   for(y = 0; y < height; y += %u) {' % (format.block_height,)
-        print '      %s *dst = dst_row;' % (dst_native_type)
-        print '      const uint8_t *src = src_row;'
-        print '      for(x = 0; x < width; x += %u) {' % (format.block_width,)
+        print('   unsigned x, y;')
+        print('   for(y = 0; y < height; y += %u) {' % (format.block_height,))
+        print('      %s *dst = dst_row;' % (dst_native_type))
+        print('      const uint8_t *src = src_row;')
+        print('      for(x = 0; x < width; x += %u) {' % (format.block_width,))
         
         generate_unpack_kernel(format, dst_channel, dst_native_type)
     
-        print '         src += %u;' % (format.block_size() / 8,)
-        print '         dst += 4;'
-        print '      }'
-        print '      src_row += src_stride;'
-        print '      dst_row += dst_stride/sizeof(*dst_row);'
-        print '   }'
+        print('         src += %u;' % (format.block_size() / 8,))
+        print('         dst += 4;')
+        print('      }')
+        print('      src_row += src_stride;')
+        print('      dst_row += dst_stride/sizeof(*dst_row);')
+        print('   }')
 
-    print '}'
-    print
+    print('}')
+    print()
     
 
 def generate_format_pack(format, src_channel, src_native_type, src_suffix):
@@ -592,28 +595,28 @@ def generate_format_pack(format, src_channel, src_native_type, src_suffix):
 
     name = format.short_name()
 
-    print 'static INLINE void'
-    print 'util_format_%s_pack_%s(uint8_t *dst_row, unsigned dst_stride, const %s *src_row, unsigned src_stride, unsigned width, unsigned height)' % (name, src_suffix, src_native_type)
-    print '{'
+    print('static INLINE void')
+    print('util_format_%s_pack_%s(uint8_t *dst_row, unsigned dst_stride, const %s *src_row, unsigned src_stride, unsigned width, unsigned height)' % (name, src_suffix, src_native_type))
+    print('{')
     
     if is_format_supported(format):
-        print '   unsigned x, y;'
-        print '   for(y = 0; y < height; y += %u) {' % (format.block_height,)
-        print '      const %s *src = src_row;' % (src_native_type)
-        print '      uint8_t *dst = dst_row;'
-        print '      for(x = 0; x < width; x += %u) {' % (format.block_width,)
+        print('   unsigned x, y;')
+        print('   for(y = 0; y < height; y += %u) {' % (format.block_height,))
+        print('      const %s *src = src_row;' % (src_native_type))
+        print('      uint8_t *dst = dst_row;')
+        print('      for(x = 0; x < width; x += %u) {' % (format.block_width,))
     
         generate_pack_kernel(format, src_channel, src_native_type)
             
-        print '         src += 4;'
-        print '         dst += %u;' % (format.block_size() / 8,)
-        print '      }'
-        print '      dst_row += dst_stride;'
-        print '      src_row += src_stride/sizeof(*src_row);'
-        print '   }'
+        print('         src += 4;')
+        print('         dst += %u;' % (format.block_size() / 8,))
+        print('      }')
+        print('      dst_row += dst_stride;')
+        print('      src_row += src_stride/sizeof(*src_row);')
+        print('   }')
         
-    print '}'
-    print
+    print('}')
+    print()
     
 
 def generate_format_fetch(format, dst_channel, dst_native_type, dst_suffix):
@@ -621,15 +624,15 @@ def generate_format_fetch(format, dst_channel, dst_native_type, dst_suffix):
 
     name = format.short_name()
 
-    print 'static INLINE void'
-    print 'util_format_%s_fetch_%s(%s *dst, const uint8_t *src, unsigned i, unsigned j)' % (name, dst_suffix, dst_native_type)
-    print '{'
+    print('static INLINE void')
+    print('util_format_%s_fetch_%s(%s *dst, const uint8_t *src, unsigned i, unsigned j)' % (name, dst_suffix, dst_native_type))
+    print('{')
 
     if is_format_supported(format):
         generate_unpack_kernel(format, dst_channel, dst_native_type)
 
-    print '}'
-    print
+    print('}')
+    print()
 
 
 def is_format_hand_written(format):
@@ -637,16 +640,16 @@ def is_format_hand_written(format):
 
 
 def generate(formats):
-    print
-    print '#include "pipe/p_compiler.h"'
-    print '#include "u_math.h"'
-    print '#include "u_half.h"'
-    print '#include "u_format.h"'
-    print '#include "u_format_other.h"'
-    print '#include "u_format_srgb.h"'
-    print '#include "u_format_yuv.h"'
-    print '#include "u_format_zs.h"'
-    print
+    print()
+    print('#include "pipe/p_compiler.h"')
+    print('#include "u_math.h"')
+    print('#include "u_half.h"')
+    print('#include "u_format.h"')
+    print('#include "u_format_other.h"')
+    print('#include "u_format_srgb.h"')
+    print('#include "u_format_yuv.h"')
+    print('#include "u_format_zs.h"')
+    print()
 
     for format in formats:
         if not is_format_hand_written(format):

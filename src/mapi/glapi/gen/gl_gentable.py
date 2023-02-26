@@ -29,6 +29,8 @@
 # Based on code ogiginally by:
 #    Ian Romanick <idr@us.ibm.com>
 
+from __future__ import absolute_import
+from __future__ import print_function
 import license
 import gl_XML, glX_XML
 import sys, getopt
@@ -162,12 +164,12 @@ class PrintCode(gl_XML.gl_print_base):
 
 
     def printRealHeader(self):
-        print header
+        print(header)
         return
 
 
     def printRealFooter(self):
-        print footer
+        print(footer)
         return
 
 
@@ -177,11 +179,11 @@ class PrintCode(gl_XML.gl_print_base):
                 vars = { 'entry_point' : entry_point,
                          'name' : f.name }
 
-                print body_template % vars
+                print(body_template % vars)
         return
 
 def show_usage():
-    print "Usage: %s [-f input_file_name]" % sys.argv[0]
+    print("Usage: %s [-f input_file_name]" % sys.argv[0])
     sys.exit(1)
 
 if __name__ == '__main__':
@@ -189,7 +191,7 @@ if __name__ == '__main__':
 
     try:
         (args, trail) = getopt.getopt(sys.argv[1:], "m:f:")
-    except Exception,e:
+    except Exception as e:
         show_usage()
 
     for (arg,val) in args:

@@ -25,6 +25,8 @@
 # Authors:
 #    Ian Romanick <idr@us.ibm.com>
 
+from __future__ import absolute_import
+from __future__ import print_function
 import gl_XML, glX_XML, glX_proto_common, license
 import sys, getopt
 
@@ -52,7 +54,7 @@ class glx_doc_parameter(gl_XML.gl_parameter):
             list_of = "LISTof"
 
         t_name = self.get_base_type_string()
-        if not type_dict.has_key( t_name ):
+        if t_name not in type_dict:
             type_name = "CARD8"
         else:
             type_name = type_dict[ t_name ]
@@ -107,7 +109,7 @@ class PrintGlxProtoText(gl_XML.gl_print_base):
             [s, pad] = p.packet_size()
             try: 
                 size += int(s)
-            except Exception,e:
+            except Exception as e:
                 size_str += "%s%s" % (plus, s)
                 plus = "+"
 
@@ -128,8 +130,8 @@ class PrintGlxProtoText(gl_XML.gl_print_base):
         else:
             s = "%u+%s" % (size, size_str)
 
-        print '            2        %-15s rendering command length' % (s)
-        print '            2        %-4u            rendering command opcode' % (f.glx_rop)
+        print('            2        %-15s rendering command length' % (s))
+        print('            2        %-4u            rendering command opcode' % (f.glx_rop))
         return
 
 
@@ -140,8 +142,8 @@ class PrintGlxProtoText(gl_XML.gl_print_base):
         if f.glx_vendorpriv != 0:
             size += 1
 
-        print '            1        CARD8           opcode (X assigned)'
-        print '            1        %-4u            GLX opcode (%s)' % (f.opcode_real_value(), f.opcode_real_name())
+        print('            1        CARD8           opcode (X assigned)')
+        print('            1        %-4u            GLX opcode (%s)' % (f.opcode_real_value(), f.opcode_real_name()))
 
         if size_str == "":
             s = "%u" % (size)
@@ -150,28 +152,28 @@ class PrintGlxProtoText(gl_XML.gl_print_base):
         else:
             s = "%u+((%s)/4)" % (size, size_str)
 
-        print '            2        %-15s request length' % (s)
+        print('            2        %-15s request length' % (s))
 
         if f.glx_vendorpriv != 0:
-            print '            4        %-4u            vendor specific opcode' % (f.opcode_value())
+            print('            4        %-4u            vendor specific opcode' % (f.opcode_value()))
 
-        print '            4        GLX_CONTEXT_TAG context tag'
+        print('            4        GLX_CONTEXT_TAG context tag')
 
         return
 
 
     def print_reply(self, f):
-        print '          =>'
-        print '            1        1               reply'
-        print '            1                        unused'
-        print '            2        CARD16          sequence number'
+        print('          =>')
+        print('            1        1               reply')
+        print('            1                        unused')
+        print('            2        CARD16          sequence number')
 
         if f.output == None:
-            print '            4        0               reply length'
+            print('            4        0               reply length')
         elif f.reply_always_array:
-            print '            4        m               reply length'
+            print('            4        m               reply length')
         else:
-            print '            4        m               reply length, m = (n == 1 ? 0 : n)'
+            print('            4        m               reply length, m = (n == 1 ? 0 : n)')
 
 
         output = None
@@ -182,53 +184,53 @@ class PrintGlxProtoText(gl_XML.gl_print_base):
 
         unused = 24
         if f.return_type != 'void':
-            print '            4        %-15s return value' % (f.return_type)
+            print('            4        %-15s return value' % (f.return_type))
             unused -= 4
         elif output != None:
-            print '            4                        unused'
+            print('            4                        unused')
             unused -= 4
 
         if output != None:
-            print '            4        CARD32          n'
+            print('            4        CARD32          n')
             unused -= 4
 
         if output != None:
             if not f.reply_always_array:
-                print ''
-                print '            if (n = 1) this follows:'
-                print ''
-                print '            4        CARD32          %s' % (output.name)
-                print '            %-2u                       unused' % (unused - 4)
-                print ''
-                print '            otherwise this follows:'
-                print ''
+                print('')
+                print('            if (n = 1) this follows:')
+                print('')
+                print('            4        CARD32          %s' % (output.name))
+                print('            %-2u                       unused' % (unused - 4))
+                print('')
+                print('            otherwise this follows:')
+                print('')
 
-            print '            %-2u                       unused' % (unused)
+            print('            %-2u                       unused' % (unused))
 
             [s, pad] = output.packet_size()
-            print '            %-8s %-15s %s' % (s, output.packet_type( self.type_map ), output.name)
+            print('            %-8s %-15s %s' % (s, output.packet_type( self.type_map ), output.name))
             if pad != None:
                 try:
                     bytes = int(s)
                     bytes = 4 - (bytes & 3)
-                    print '            %-8u %-15s unused' % (bytes, "")
-                except Exception,e:
-                    print '            %-8s %-15s unused, %s=pad(%s)' % (pad, "", pad, s)
+                    print('            %-8u %-15s unused' % (bytes, ""))
+                except Exception as e:
+                    print('            %-8s %-15s unused, %s=pad(%s)' % (pad, "", pad, s))
         else:
-            print '            %-2u                       unused' % (unused)
+            print('            %-2u                       unused' % (unused))
 
 
     def print_body(self, f):
         for p in f.parameterIterateGlxSend():
             [s, pad] = p.packet_size()
-            print '            %-8s %-15s %s' % (s, p.packet_type( self.type_map ), p.name)
+            print('            %-8s %-15s %s' % (s, p.packet_type( self.type_map ), p.name))
             if pad != None:
                 try:
                     bytes = int(s)
                     bytes = 4 - (bytes & 3)
-                    print '            %-8u %-15s unused' % (bytes, "")
-                except Exception,e:
-                    print '            %-8s %-15s unused, %s=pad(%s)' % (pad, "", pad, s)
+                    print('            %-8u %-15s unused' % (bytes, ""))
+                except Exception as e:
+                    print('            %-8s %-15s unused, %s=pad(%s)' % (pad, "", pad, s))
 
     def printBody(self, api):
         self.type_map = {}
@@ -245,10 +247,10 @@ class PrintGlxProtoText(gl_XML.gl_print_base):
 
 
             if f.glx_rop:
-                print '        %s' % (f.name)
+                print('        %s' % (f.name))
                 self.print_render_header(f)
             elif f.glx_sop or f.glx_vendorpriv:
-                print '        %s' % (f.name)
+                print('        %s' % (f.name))
                 self.print_single_header(f)
             else:
                 continue
@@ -258,7 +260,7 @@ class PrintGlxProtoText(gl_XML.gl_print_base):
             if f.needs_reply():
                 self.print_reply(f)
 
-            print ''
+            print('')
         return
 
 
@@ -267,7 +269,7 @@ if __name__ == '__main__':
 
     try:
         (args, trail) = getopt.getopt(sys.argv[1:], "f:")
-    except Exception,e:
+    except Exception as e:
         show_usage()
 
     for (arg,val) in args:

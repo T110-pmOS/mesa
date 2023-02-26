@@ -25,6 +25,7 @@
 # Authors:
 #    Ian Romanick <idr@us.ibm.com>
 
+from __future__ import absolute_import
 import gl_XML
 import license
 import sys, getopt, string
@@ -67,7 +68,7 @@ class glx_enum(gl_XML.gl_enum):
                 else:
                     mode = 1
 
-                if not self.functions.has_key(n):
+                if n not in self.functions:
                     self.functions[ n ] = [c, mode]
 
             child = child.next
@@ -478,7 +479,7 @@ class glx_function(gl_XML.gl_function):
     def needs_reply(self):
         try:
             x = self._needs_reply
-        except Exception, e:
+        except Exception as e:
             x = 0
             if self.return_type != 'void':
                 x = 1
@@ -556,12 +557,12 @@ class glx_function_iterator(object):
 
 
     def next(self):
-        f = self.iterator.next()
+        f = next(self.iterator)
 
         if f.client_supported_for_indirect():
             return f
         else:
-            return self.next()
+            return next(self)
 
 
 class glx_api(gl_XML.gl_api):

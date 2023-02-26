@@ -25,6 +25,8 @@
 # _mesa_initialize_exec_table().  It is responsible for populating all
 # entries in the "exec" dispatch table that aren't dynamic.
 
+from __future__ import absolute_import
+from __future__ import print_function
 import collections
 import license
 import gl_XML
@@ -151,10 +153,10 @@ class PrintCode(gl_XML.gl_print_base):
             'Intel Corporation')
 
     def printRealHeader(self):
-        print header
+        print(header)
 
     def printRealFooter(self):
-        print footer
+        print(footer)
 
     def printBody(self, api):
         # Collect SET_* calls by the condition under which they should
@@ -191,14 +193,14 @@ class PrintCode(gl_XML.gl_print_base):
         # Print out an if statement for each unique condition, with
         # the SET_* calls nested inside it.
         for condition in sorted(settings_by_condition.keys()):
-            print '   if ({0}) {{'.format(condition)
+            print('   if ({0}) {{'.format(condition))
             for setting in sorted(settings_by_condition[condition]):
-                print '      {0}'.format(setting)
-            print '   }'
+                print('      {0}'.format(setting))
+            print('   }')
 
 
 def show_usage():
-    print "Usage: %s [-f input_file_name]" % sys.argv[0]
+    print("Usage: %s [-f input_file_name]" % sys.argv[0])
     sys.exit(1)
 
 
@@ -207,7 +209,7 @@ if __name__ == '__main__':
 
     try:
         (args, trail) = getopt.getopt(sys.argv[1:], "m:f:")
-    except Exception,e:
+    except Exception as e:
         show_usage()
 
     for (arg,val) in args:
