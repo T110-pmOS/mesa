@@ -23,7 +23,8 @@ Build mesa (this):
     cd /root
     git clone https://github.com/T110-pmOS/mesa -b py3_pre_rebase_2014_09 --depth 1
     apk add automake autoconf libtool bison libpthread-stubs eudev-dev glproto flex libdrm-dev sysfsutils sysfsutils-dev expat-dev libdrm-dev
-    apk add python3 py3-libxml2 gettext
+    apk add python3 py3-libxml2 gettext py3-pip
+    pip install six
     cd mesa
     autoreconf -v --install
     apk add nano
