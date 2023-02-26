@@ -581,9 +581,9 @@ class gl_parameter(object):
                 list.append( str(s) )
 
             if len(list) > 1 and use_parens :
-                return "(%s)" % (string.join(list, " * "))
+                return "(%s)" % (" * ".join(list))
             else:
-                return string.join(list, " * ")
+                return " * ".join(list)
 
         elif self.is_image():
             return "compsize"

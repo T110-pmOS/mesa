@@ -38,10 +38,10 @@ def convertStringForXCB(str):
     i = 0
     while i < len(str):
         if str[i:i+3] in special:
-            tmp = '%s_%s' % (tmp, string.lower(str[i:i+3]))
+            tmp = '%s_%s' % (tmp, str[i:i+3].lower())
             i = i + 2;
         elif str[i].isupper():
-            tmp = '%s_%s' % (tmp, string.lower(str[i]))
+            tmp = '%s_%s' % (tmp, str[i].lower())
         else:
             tmp = '%s%s' % (tmp, str[i])
         i += 1
@@ -631,7 +631,7 @@ generic_%u_byte( GLint rop, const void * ptr )
 
         if len( condition_list ) > 0:
             if len( condition_list ) > 1:
-                skip_condition = "(%s)" % (string.join( condition_list, ") && (" ))
+                skip_condition = "(%s)" % (") && (".join( condition_list))
             else:
                 skip_condition = "%s" % (condition_list.pop(0))
 

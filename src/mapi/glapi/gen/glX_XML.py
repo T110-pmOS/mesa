@@ -555,6 +555,13 @@ class glx_function_iterator(object):
     def __iter__(self):
         return self
 
+    def __next__(self):
+        f = next(self.iterator)
+
+        if f.client_supported_for_indirect():
+            return f
+        else:
+            return next(self)
 
     def next(self):
         f = next(self.iterator)
