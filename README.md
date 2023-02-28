@@ -8,9 +8,11 @@ You can create an Alpine 3.10 CHROOT over the pmOS version of it, to access Pyth
     mkdir alpine
     tar zxf alpine-minirootfs-*.tar.gz -C ./alpine
     cp -L /etc/resolv.conf ./alpine/etc/
-    mkdir -p /alpine/root
+    mkdir -p ./alpine/root
     #Recommend to create a sh file:
+    mount /sys/ ./alpine/sys/ --bind
     mount /dev/ ./alpine/dev/ --bind
+    mount /proc/ ./alpine/proc/ --bind
     mount -o remount,ro,bind ./alpine/dev
     export DISPLAY=:0
     chroot ./alpine
@@ -20,11 +22,8 @@ build https://github.com/T110-pmOS/etna_viv e.g.:
     apk add make mesa-dev gcc alpine-sdk linux-headers libpng-dev git
     cd /root
     git clone https://github.com/T110-pmOS/etna_viv
-    cd etna_viv
+    cd etna_viv/attic/etnaviv
     export GCABI="goya"
-    cd attic
-    make -j2
-    cd egl
     make -j2
     
 Note: You need to build enta_viv first to get libetnaviv.a
@@ -33,7 +32,7 @@ Build mesa (this):
 
     cd /root
     git clone https://github.com/T110-pmOS/mesa -b pre_rebase_2014_09 --depth 1
-    apk add automake autoconf libtool bison libpthread-stubs eudev-dev glproto flex     libdrm-dev sysfsutils sysfsutils-dev expat-dev libdrm-dev
+    apk add automake autoconf libtool bison libpthread-stubs eudev-dev glproto flex libdrm-dev sysfsutils sysfsutils-dev expat-dev libdrm-dev
     apk add python2 libffi py2-libxml2 gettext
     cd mesa
     autoreconf -v --install
